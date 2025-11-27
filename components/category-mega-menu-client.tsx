@@ -32,7 +32,7 @@ export function CategoryMegaMenuClient({ categories }: CategoryMegaMenuClientPro
 
               {category.subCategories.length > 0 && (
                 <div
-                  className={`absolute left-1/2 -translate-x-1/2 top-full pt-4 transition-all duration-200 z-50 ${
+                  className={`absolute left-0 top-full transition-all duration-200 z-50 ${
                     activeCategoryId === category.id
                       ? "opacity-100 visible pointer-events-auto"
                       : "opacity-0 invisible pointer-events-none"
