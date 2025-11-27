@@ -22,6 +22,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { SearchModal } from "./search-modal"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 export function Header() {
   const { cartCount } = useCart()
@@ -29,9 +30,36 @@ export function Header() {
   const { categories } = useCategories()
   const [searchQuery, setSearchQuery] = useState("")
   const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const closeMenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
   const { toast } = useToast()
+  const clearCloseMenuTimeout = () => {
+    if (closeMenuTimeoutRef.current) {
+      clearTimeout(closeMenuTimeoutRef.current)
+      closeMenuTimeoutRef.current = null
+    }
+  }
+
+  const scheduleCloseCategoryMenu = () => {
+    clearCloseMenuTimeout()
+    closeMenuTimeoutRef.current = setTimeout(() => {
+      setActiveCategoryId(null)
+      closeMenuTimeoutRef.current = null
+    }, 150)
+  }
+
+  const openCategoryMenu = (categoryId: string) => {
+    clearCloseMenuTimeout()
+    setActiveCategoryId(categoryId)
+  }
+
+  const handleCategoryBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      scheduleCloseCategoryMenu()
+    }
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -45,6 +73,12 @@ export function Header() {
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      clearCloseMenuTimeout()
+    }
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -231,17 +265,36 @@ export function Header() {
       <div className="hidden md:block border-b bg-background relative z-[9998]">
         <div className="w-full px-4">
           <nav className="flex items-center justify-start gap-1 py-3 overflow-x-auto scrollbar-hide">
-            {categories.map((category) => (
-              <div key={category.id} className="group relative flex-shrink-0">
+            {categories.map((category) => {
+              const categoryId = String(category.id)
+              return (
+              <div
+                key={category.id}
+                className="relative flex-shrink-0"
+                onMouseEnter={() => openCategoryMenu(categoryId)}
+                onMouseLeave={scheduleCloseCategoryMenu}
+                onFocus={() => openCategoryMenu(categoryId)}
+                onBlur={handleCategoryBlur}
+              >
                 <Link
                   href={`/category/${category.slug}`}
                   className="text-sm font-medium hover:text-primary transition-colors whitespace-nowrap px-3 py-2 rounded-md hover:bg-accent block"
+                  onClick={() => setActiveCategoryId(null)}
                 >
                   {category.name}
                 </Link>
 
                 {category.subCategories && category.subCategories.length > 0 && (
-                  <div className="fixed left-0 right-0 top-[128px] pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none group-hover:pointer-events-auto">
+                  <div
+                    className={cn(
+                      "fixed left-0 right-0 top-[128px] pt-2 transition-all duration-150 z-50",
+                      activeCategoryId === categoryId
+                        ? "opacity-100 visible pointer-events-auto"
+                        : "opacity-0 invisible pointer-events-none"
+                    )}
+                    onMouseEnter={clearCloseMenuTimeout}
+                    onMouseLeave={scheduleCloseCategoryMenu}
+                  >
                     <div className="max-w-screen-xl mx-auto px-4">
                       <div className="bg-background border rounded-lg shadow-xl p-6">
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-4 max-h-[70vh] overflow-y-auto pr-2">
@@ -286,7 +339,7 @@ export function Header() {
                   </div>
                 )}
               </div>
-            ))}
+            )})}
           </nav>
         </div>
       </div>
