@@ -114,6 +114,18 @@ export async function fetchProductsPage(page = 1, limit = 12): Promise<ApiRespon
         }
       }) || []
 
+    const hasNextPage = apiData?.pagination?.has_next_page === true
+    const canFetchMore = apiData?.pagination?.can_fetch_more === true
+    const hasMore = hasNextPage || canFetchMore
+
+    console.log("[v0] Pagination info:", {
+      current_page: apiData?.pagination?.current_page,
+      total_pages: apiData?.pagination?.total_pages,
+      has_next_page: hasNextPage,
+      can_fetch_more: canFetchMore,
+      hasMore,
+    })
+
     return {
       success: true,
       data: {
@@ -121,7 +133,7 @@ export async function fetchProductsPage(page = 1, limit = 12): Promise<ApiRespon
         total: apiData?.pagination?.total || products.length * 10,
         page: apiData?.pagination?.current_page || page,
         limit: apiData?.pagination?.per_page || limit,
-        hasMore: apiData?.pagination?.has_next_page !== false,
+        hasMore,
       },
     }
   } catch (error) {
@@ -194,6 +206,19 @@ export async function fetchProductsByCategoryPage(
         }
       }) || []
 
+    const hasNextPage = apiData?.pagination?.has_next_page === true
+    const canFetchMore = apiData?.pagination?.can_fetch_more === true
+    const hasMore = hasNextPage || canFetchMore
+
+    console.log("[v0] Category pagination info:", {
+      categoryId,
+      current_page: apiData?.pagination?.current_page,
+      total_pages: apiData?.pagination?.total_pages,
+      has_next_page: hasNextPage,
+      can_fetch_more: canFetchMore,
+      hasMore,
+    })
+
     return {
       success: true,
       data: {
@@ -201,7 +226,7 @@ export async function fetchProductsByCategoryPage(
         total: apiData?.pagination?.total || 0,
         page: apiData?.pagination?.current_page || page,
         limit: apiData?.pagination?.per_page || limit,
-        hasMore: apiData?.pagination?.has_next_page !== false,
+        hasMore,
       },
     }
   } catch (error) {

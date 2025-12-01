@@ -16,7 +16,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
 
   return (
     <div className="flex gap-4 border rounded-lg p-4">
-      <Link href={`/product/${item.product.id}`} className="flex-shrink-0">
+      <Link href={`/product/${item.product.id}`} className="flex-shrink-0" prefetch={false}>
         <div className="relative w-24 h-32 rounded-md overflow-hidden bg-muted">
           <Image src={item.product.image || "/placeholder.svg"} alt={item.product.name} fill className="object-cover" />
         </div>
@@ -24,7 +24,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
 
       <div className="flex-1 flex flex-col justify-between">
         <div>
-          <Link href={`/product/${item.product.id}`}>
+          <Link href={`/product/${item.product.id}`} prefetch={false}>
             <h3 className="font-medium hover:underline">{item.product.name}</h3>
           </Link>
           <div className="flex gap-4 text-sm text-muted-foreground mt-1">

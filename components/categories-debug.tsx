@@ -36,7 +36,7 @@ export function CategoriesDebug() {
 
         <div className="text-xs text-muted-foreground space-y-1 p-3 bg-muted/50 rounded">
           <p>
-            <strong>API Endpoint:</strong> https://cms2.devback.website/v2_0_0-category/tree
+            <strong>API Endpoint:</strong> http://localhost:8080/v2_0_0-category/tree
           </p>
           <p>
             <strong>Status:</strong> {usingFallback ? "API unavailable, using fallback" : "Connected to API"}
