@@ -527,56 +527,117 @@ export async function fetchProductDetailsWithVariants(
     const data: ProductDetailsWithVariantsResponse = await response.json()
     console.log("[v0] Product details with variants API response:", data)
 
-    // Transform the response to match the expected format
-    if (data.success && data.info) {
-      // Map the info object to match ProductDetailResponse structure
-      const productData: ProductDetailResponse["data"] = {
-        id: data.info.id,
-        product_id: data.info.product_id,
-        item_id: data.info.item_id,
-        category_id: data.info.category_id,
-        root_category_id: data.info.root_category_id,
-        product_url: data.info.product_url,
-        detail_url: data.info.detail_url,
-        video_url: data.info.video_url,
-        title_zh: data.info.title_zh,
-        title_en: data.info.title_en,
-        description_zh: data.info.description_zh,
-        description_en: data.info.description_en,
-        currency: data.info.currency,
-        origin_price: data.info.origin_price || "0",
-        origin_price_min: data.info.origin_price_min || "0",
-        origin_price_max: data.info.origin_price_max || "0",
-        previous_origin_price: data.info.previous_origin_price || null,
-        discount_price: data.info.discount_price || null,
-        sale_count: data.info.sale_count || 0,
-        sale_quantity_90days: data.info.sale_quantity_90days || 0,
-        total_stock: data.info.total_stock || 0,
-        is_sold_out: data.info.is_sold_out || 0,
-        offer_unit: data.info.offer_unit || "",
-        unit_weight: data.info.unit_weight || "",
-        mix_amount: data.info.mix_amount || null,
-        mix_begin: data.info.mix_begin || null,
-        mix_num: data.info.mix_num || null,
-        delivery_location: data.info.delivery_location || "",
-        delivery_location_code: data.info.delivery_location_code || "",
-        delivery_fee: data.info.delivery_fee || "0",
-        template_id: data.info.template_id || "",
-        shop_name: data.info.shop_name || "",
-        shop_url: data.info.shop_url || "",
-        seller_login_id: data.info.seller_login_id || "",
-        seller_user_id: data.info.seller_user_id || "",
-        seller_member_id: data.info.seller_member_id || "",
-        support_drop_shipping: data.info.support_drop_shipping || 0,
-        support_cross_border: data.info.support_cross_border || 0,
-        service_tags: data.info.service_tags || null,
-        product_props: data.info.product_props || [],
-        promotions: data.info.promotions || null,
-        raw_data: data.info.raw_data || ({} as any),
-        created_at: data.info.created_at || new Date().toISOString(),
-        updated_at: data.info.updated_at || new Date().toISOString(),
-        images: data.info.images || [],
-      }
+      // Transform the response to match the expected format
+      if (data.success && data.info) {
+        // Parse raw_data if it's a string
+        let parsedRawData: any = {}
+        if (data.info.raw_data) {
+          if (typeof data.info.raw_data === "string") {
+            try {
+              parsedRawData = JSON.parse(data.info.raw_data)
+            } catch (e) {
+              console.error("[v0] Failed to parse raw_data:", e)
+              parsedRawData = {}
+            }
+          } else {
+            parsedRawData = data.info.raw_data
+          }
+        }
+
+        // Parse images if it's a string
+        let parsedImages: string[] = []
+        if (data.info.images) {
+          if (typeof data.info.images === "string") {
+            try {
+              parsedImages = JSON.parse(data.info.images)
+              if (!Array.isArray(parsedImages)) {
+                parsedImages = []
+              }
+            } catch (e) {
+              console.error("[v0] Failed to parse images:", e)
+              parsedImages = []
+            }
+          } else if (Array.isArray(data.info.images)) {
+            parsedImages = data.info.images
+          }
+        }
+
+        // Fallback to main_imgs from raw_data if images is empty
+        if (parsedImages.length === 0 && parsedRawData.main_imgs && Array.isArray(parsedRawData.main_imgs)) {
+          parsedImages = parsedRawData.main_imgs
+        }
+
+        // Parse product_props if it's a string
+        let parsedProductProps: Array<Record<string, string>> = []
+        if (data.info.product_props) {
+          if (typeof data.info.product_props === "string") {
+            try {
+              parsedProductProps = JSON.parse(data.info.product_props)
+              if (!Array.isArray(parsedProductProps)) {
+                parsedProductProps = []
+              }
+            } catch (e) {
+              console.error("[v0] Failed to parse product_props:", e)
+              parsedProductProps = []
+            }
+          } else if (Array.isArray(data.info.product_props)) {
+            parsedProductProps = data.info.product_props
+          }
+        }
+
+        // Fallback to product_props from raw_data if product_props is empty
+        if (parsedProductProps.length === 0 && parsedRawData.product_props && Array.isArray(parsedRawData.product_props)) {
+          parsedProductProps = parsedRawData.product_props
+        }
+
+        // Map the info object to match ProductDetailResponse structure
+        const productData: ProductDetailResponse["data"] = {
+          id: data.info.id,
+          product_id: data.info.product_id,
+          item_id: data.info.item_id,
+          category_id: data.info.category_id,
+          root_category_id: data.info.root_category_id,
+          product_url: data.info.product_url,
+          detail_url: data.info.detail_url,
+          video_url: data.info.video_url,
+          title_zh: data.info.title_zh,
+          title_en: data.info.title_en,
+          description_zh: data.info.description_zh,
+          description_en: data.info.description_en,
+          currency: data.info.currency,
+          origin_price: data.info.origin_price || "0",
+          origin_price_min: data.info.origin_price_min || "0",
+          origin_price_max: data.info.origin_price_max || "0",
+          previous_origin_price: data.info.previous_origin_price || null,
+          discount_price: data.info.discount_price || null,
+          sale_count: data.info.sale_count || 0,
+          sale_quantity_90days: data.info.sale_quantity_90days || 0,
+          total_stock: data.info.total_stock || 0,
+          is_sold_out: data.info.is_sold_out || 0,
+          offer_unit: data.info.offer_unit || "",
+          unit_weight: data.info.unit_weight || "",
+          mix_amount: data.info.mix_amount || null,
+          mix_begin: data.info.mix_begin || null,
+          mix_num: data.info.mix_num || null,
+          delivery_location: data.info.delivery_location || "",
+          delivery_location_code: data.info.delivery_location_code || "",
+          delivery_fee: data.info.delivery_fee || "0",
+          template_id: data.info.template_id || "",
+          shop_name: data.info.shop_name || "",
+          shop_url: data.info.shop_url || "",
+          seller_login_id: data.info.seller_login_id || "",
+          seller_user_id: data.info.seller_user_id || "",
+          seller_member_id: data.info.seller_member_id || "",
+          support_drop_shipping: data.info.support_drop_shipping || 0,
+          support_cross_border: data.info.support_cross_border || 0,
+          service_tags: data.info.service_tags || null,
+          product_props: parsedProductProps,
+          promotions: data.info.promotions || null,
+          raw_data: parsedRawData,
+          created_at: data.info.created_at || new Date().toISOString(),
+          updated_at: data.info.updated_at || new Date().toISOString(),
+          images: parsedImages,
+        }
 
       const variants = data.variants || []
 
