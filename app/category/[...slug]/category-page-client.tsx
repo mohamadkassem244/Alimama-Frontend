@@ -111,7 +111,7 @@ export function CategoryPageClient({ slugParts }: CategoryPageClientProps) {
                 {crumb.isLast ? (
                   <span className="text-foreground font-medium">{crumb.name}</span>
                 ) : (
-                  <Link href={`/category/${crumb.path}`} className="hover:text-foreground">
+                  <Link href={`/category/${crumb.path}`} className="hover:text-foreground" prefetch={false}>
                     {crumb.name}
                   </Link>
                 )}

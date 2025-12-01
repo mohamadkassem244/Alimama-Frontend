@@ -124,7 +124,11 @@ export function Header() {
                 </Link>
                 {categories.map((category) => (
                   <div key={category.id} className="space-y-2">
-                    <Link href={`/category/${category.slug}`} className="text-lg font-semibold hover:text-primary">
+                    <Link
+                      href={`/category/${category.slug}`}
+                      className="text-lg font-semibold hover:text-primary"
+                      prefetch={false}
+                    >
                       {category.name}
                     </Link>
                     {category.subCategories.map((sub) => (
@@ -132,6 +136,7 @@ export function Header() {
                         <Link
                           href={`/category/${category.slug}/${sub.slug}`}
                           className="text-sm font-medium hover:text-primary block"
+                          prefetch={false}
                         >
                           {sub.name}
                         </Link>
@@ -140,6 +145,7 @@ export function Header() {
                             key={subSub.id}
                             href={`/category/${category.slug}/${sub.slug}/${subSub.slug}`}
                             className="text-xs text-muted-foreground hover:text-foreground block ml-4"
+                            prefetch={false}
                           >
                             {subSub.name}
                           </Link>
@@ -280,6 +286,7 @@ export function Header() {
                   href={`/category/${category.slug}`}
                   className="text-sm font-medium hover:text-primary transition-colors whitespace-nowrap px-3 py-2 rounded-md hover:bg-accent block"
                   onClick={() => setActiveCategoryId(null)}
+                  prefetch={false}
                 >
                   {category.name}
                 </Link>
@@ -304,6 +311,7 @@ export function Header() {
                                 href={`/category/${category.slug}/${subCategory.slug}`}
                                 className="font-semibold text-sm hover:text-primary transition-colors mb-2 block truncate"
                                 title={subCategory.name}
+                                prefetch={false}
                               >
                                 {subCategory.name}
                               </Link>
@@ -315,6 +323,7 @@ export function Header() {
                                         href={`/category/${category.slug}/${subCategory.slug}/${subSubCategory.slug}`}
                                         className="text-xs text-muted-foreground hover:text-foreground transition-colors block truncate"
                                         title={subSubCategory.name}
+                                        prefetch={false}
                                       >
                                         {subSubCategory.name}
                                       </Link>
@@ -330,6 +339,7 @@ export function Header() {
                           <Link
                             href={`/category/${category.slug}`}
                             className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                            prefetch={false}
                           >
                             View All {category.name} →
                           </Link>
