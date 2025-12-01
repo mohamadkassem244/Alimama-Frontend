@@ -14,6 +14,7 @@ export function MegaMenu() {
               <Link
                 href={`/category/${category.slug}`}
                 className="text-sm font-medium hover:text-primary transition-colors"
+                prefetch={false}
               >
                 {category.name}
               </Link>
@@ -27,6 +28,7 @@ export function MegaMenu() {
                         <Link
                           href={`/category/${category.slug}/${subCategory.slug}`}
                           className="font-semibold text-sm hover:text-primary transition-colors mb-3 block"
+                          prefetch={false}
                         >
                           {subCategory.name}
                         </Link>
@@ -36,6 +38,7 @@ export function MegaMenu() {
                               <Link
                                 href={`/category/${category.slug}/${subCategory.slug}/${subSubCategory.slug}`}
                                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                                prefetch={false}
                               >
                                 {subSubCategory.name}
                                 <ChevronRight className="h-3 w-3" />
