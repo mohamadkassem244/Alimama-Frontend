@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { ProductCard } from "./product-card"
 import type { Product } from "@/lib/types"
 import { Loader2 } from "lucide-react"
@@ -66,7 +66,7 @@ export function InfiniteProductGrid({
     }
   }
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (loading || !hasMore) return
 
     setLoading(true)
@@ -81,15 +81,24 @@ export function InfiniteProductGrid({
       if (response.data && response.data.products) {
         const newProducts = response.data.products
         console.log("[v0] Loaded more products:", newProducts.length)
+        console.log("[v0] Has more pages:", response.data.hasMore)
+        console.log("[v0] Current page:", response.data.page)
+        console.log("[v0] Total products:", response.data.total)
 
         if (newProducts.length > 0) {
-          setDisplayedProducts((prev) => [...prev, ...newProducts])
+          setDisplayedProducts((prev) => {
+            const updated = [...prev, ...newProducts]
+            setTotalCount(response.data?.total || updated.length)
+            return updated
+          })
           setPage((prev) => prev + 1)
-          setHasMore(response.data.hasMore)
+          setHasMore(response.data?.hasMore ?? false)
         } else {
+          console.log("[v0] No new products, setting hasMore to false")
           setHasMore(false)
         }
       } else {
+        console.log("[v0] No data in response, setting hasMore to false")
         setHasMore(false)
       }
     } catch (err) {
@@ -99,19 +108,22 @@ export function InfiniteProductGrid({
     } finally {
       setLoading(false)
     }
-  }
+  }, [loading, hasMore, page, categoryId, productsPerPage])
 
   useEffect(() => {
+    if (!hasMore || loading) return
+
     const observer = new IntersectionObserver(
       (entries) => {
         const target = entries[0]
         if (target.isIntersecting && hasMore && !loading) {
+          console.log("[v0] Trigger element visible, loading more products...")
           loadMore()
         }
       },
       {
         root: null,
-        rootMargin: "800px", // Trigger loading 800px before the trigger element is visible
+        rootMargin: "1000px", // Trigger loading 1000px before the trigger element is visible (very early)
         threshold: 0,
       },
     )
@@ -119,6 +131,7 @@ export function InfiniteProductGrid({
     const currentTrigger = triggerRef.current
     if (currentTrigger) {
       observer.observe(currentTrigger)
+      console.log("[v0] IntersectionObserver set up for trigger element")
     }
 
     return () => {
@@ -126,7 +139,7 @@ export function InfiniteProductGrid({
         observer.unobserve(currentTrigger)
       }
     }
-  }, [hasMore, loading, page])
+  }, [hasMore, loading, loadMore])
 
   return (
     <div>
@@ -139,15 +152,22 @@ export function InfiniteProductGrid({
       {/* Products Grid */}
       {displayedProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {displayedProducts.map((product, index) => {
-            const isNearEnd = displayedProducts.length - index <= 12
-            return (
-              <div key={`${product.id}-${index}`}>
-                {isNearEnd && index === displayedProducts.length - 12 && <div ref={triggerRef} className="absolute" />}
-                <ProductCard product={product} />
-              </div>
-            )
-          })}
+          {displayedProducts.map((product, index) => (
+            <ProductCard key={`${product.id}-${index}`} product={product} />
+          ))}
+          {/* Trigger element placed after 2nd row (8 products = 2 rows on desktop) for faster loading */}
+          {/* With 1000px rootMargin, this will trigger as soon as 2nd row becomes visible */}
+          {hasMore && (
+            <div
+              ref={triggerRef}
+              className="col-span-full h-1 w-full"
+              style={{ 
+                minHeight: "1px",
+                marginTop: displayedProducts.length >= 8 ? "-1rem" : "0"
+              }}
+              aria-hidden="true"
+            />
+          )}
         </div>
       ) : (
         !loading && (

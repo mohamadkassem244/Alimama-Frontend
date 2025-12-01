@@ -122,6 +122,7 @@ export function SearchResults({ searchQuery }: SearchResultsProps) {
             key={item.item_id}
             href={`/product/${item.item_id}`}
             className="group border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+            prefetch={false}
           >
             <div className="aspect-square relative bg-muted overflow-hidden">
               <img

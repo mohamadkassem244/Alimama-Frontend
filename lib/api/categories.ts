@@ -1,6 +1,6 @@
 import type { ApiCategoryResponse, ApiCategory, Category, SubCategory, SubSubCategory } from "@/lib/types"
 
-const API_BASE_URL = "https://cms2.devback.website"
+const API_BASE_URL = "http://localhost:8080"
 
 // Fetch categories from API
 export async function fetchCategoriesFromApi(): Promise<ApiCategory[]> {

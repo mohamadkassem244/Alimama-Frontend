@@ -24,7 +24,7 @@ export function ProductAdminCard({ product }: ProductAdminCardProps) {
               <p className="text-sm text-muted-foreground">{product.category}</p>
             </div>
             <div className="flex gap-2 ml-4">
-              <Link href={`/product/${product.id}`}>
+              <Link href={`/product/${product.id}`} prefetch={false}>
                 <Button variant="ghost" size="icon">
                   <Eye className="h-4 w-4" />
                 </Button>

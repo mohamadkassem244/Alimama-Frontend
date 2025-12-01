@@ -71,7 +71,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <Link href={`/product/${product.id}`}>
+    <Link href={`/product/${product.id}`} prefetch={false}>
       <Card className="group overflow-hidden border-0 shadow-none hover:shadow-lg transition-shadow">
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           <img
